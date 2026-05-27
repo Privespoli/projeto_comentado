@@ -59,10 +59,10 @@ export const votarPOI = async (req, res) => {
 
   try {
     const { data, error } = await supabase
-      .from('votos_poi')
+      .from('votos_poi')  // é a junção de update + insert: Se já existe um voto desse utilizador nesse POI → atualiza. Se não existe → cria
       .upsert(
         { poi_id: poiId, user_id, tipo_voto: valorVoto },
-        { onConflict: 'poi_id, user_id' } // clave única: un voto por usuario por POI
+        { onConflict: 'poi_id, user_id' } // clave única: un voto por usuario por POI define o que é considerado "duplicado": um utilizador só pode ter um voto por POI
       )
       .select();
 
@@ -93,7 +93,7 @@ export const listarPOIsPorViaje = async (req, res) => {
 
     if (error) return res.status(400).json({ error: error.message });
 
-    // Calcula los votos positivos, negativos y totales para cada POI
+    // Calcula los votos positivos, negativos y totales para cada POI, e devolve novo array
     const poisComPontuacao = data.map(poi => {
       const votosPositivos = poi.votos_poi.filter(v => v.tipo_voto === 1).length;
       const votosNegativos = poi.votos_poi.filter(v => v.tipo_voto === -1).length;
